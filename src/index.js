@@ -1,10 +1,12 @@
 const addBtn = document.querySelector('#new-toy-btn');
 const toyForm = document.querySelector('.container');
 const divTag = document.getElementById('toy-collection');
-const submitBtn = document.querySelector('form')
+const submitBtn = document.querySelector('form');
 
 const toyCard = (toy) => {
-  return `<div data-id="${toy.id}"class="card">
+  return `
+  <div data-id="${toy.id}"class="card">
+    <button class = "remove-toy"> DELETE </button>
     <h2>${toy.name}</h2>
     <img src="${toy.image}" class="toy-avatar" />
     <p data-like="${toy.likes}">${toy.likes} Likes </p>
@@ -67,15 +69,19 @@ addBtn.addEventListener('click', () => {
 divTag.addEventListener('click', function(){
   event.preventDefault()
   const toyId = event.target.parentElement.dataset.id
-  let likes = parseInt(event.target.previousElementSibling.dataset.like)
-  let pTag = event.target.previousElementSibling
-  let updatedLikes = likes + 1;
-   if(event.target.className == "like-btn"){
+  if(event.target.className == "like-btn"){
+    let pTag = event.target.previousElementSibling
+    let likes = parseInt(event.target.previousElementSibling.dataset.like)
+    let updatedLikes = likes + 1;
      uLikes(toyId, updatedLikes)
      .then(parsedJ => {
       pTag.dataset.like = parsedJ.likes
       pTag.innerText = `${parsedJ.likes} Likes`
     })
+  } else if(event.target.className == "remove-toy"){
+    event.target.parentElement.remove();
+    deleteToy(toyId)
+
   }
   
   
@@ -93,4 +99,15 @@ const uLikes = (toyId, updatedLikes) => {
   })
   .then(res => res.json())  
 
+}
+
+const deleteToy = (toyId) => {
+  return fetch(`http://localhost:3000/toys/${toyId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    }
+
+  })
 }
